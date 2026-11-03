@@ -332,7 +332,7 @@ export const register: Register = on => {
           {shown.label}
         </Text>
         <Text dimColor wrap="truncate">
-          opt+i or ctrl+x tab to focus · j/k scroll · x or typing closes
+          alt+i or ctrl+x tab to focus · j/k scroll · x or typing closes
         </Text>
         {shown.status === 'loading' && <Text dimColor>Waiting for the model…</Text>}
         {shown.status === 'error' && <Text color="error">Failed: {shown.reason}</Text>}
