@@ -1,6 +1,6 @@
 {
   "name": "msg-navigator",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Jump to any of your previous prompts, or copy, summarize or translate its response, from a picker (keyboard shortcut or /jump)",
   "author": {
     "name": "Nilson Marmolejo",

@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](https://code.claude.com)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.0-blue)
 
 </div>
 
@@ -16,12 +16,18 @@ Long Claude Code sessions turn into a wall of text. Finding *that* answer from t
 
 **msg-navigator** gives you a picker of every prompt you typed. Pick one and you are there, or grab the answer without ever scrolling to it.
 
-<!-- Screenshots: add docs/picker.png and docs/card.png, then uncomment.
 <p align="center">
-  <img src="docs/picker.png" alt="The message picker" width="49%">
-  <img src="docs/card.png" alt="A summary card above the prompt" width="49%">
+  <img src="docs/demo.gif" alt="Jumping to a prompt, then summarizing an answer with msg-navigator" width="100%">
 </p>
--->
+
+## ⚡ Quick start
+
+1. **Install** — at the Claude Code prompt:
+   ```
+   /plugin install msg-navigator --marketplace nmarmolejo/claude-code-msg-navigator
+   ```
+2. **Open the picker** — type `/jump` (or bind **Option+U**, see [Keyboard shortcuts](#️-keyboard-shortcuts-recommended)).
+3. **Pick a prompt** with ↑ / ↓ and press **Enter** to jump, or **`c` `a` `r` `t`** to copy, copy all, summarize or translate.
 
 ## ✨ Features
 
@@ -38,6 +44,20 @@ Long Claude Code sessions turn into a wall of text. Finding *that* answer from t
 - ⌨️ **Keyboard first** — open it with your own shortcut (Option+U below) or `/jump`; the newest prompt is preselected.
 - 🧼 **Out of your way** — a single `⇅` glyph in the footer, no extra rows.
 - 🧠 **Uses your session** — summaries and translations run through your own Claude Code credentials, no API key to set up.
+
+## 📸 Screenshots
+
+**The picker** — every prompt of the session, with the action keys at the bottom:
+
+![The message picker](docs/picker.png)
+
+**Summarize (`r`)** — a detailed summary in a scrollable card above the prompt, already on your clipboard:
+
+![A summary card](docs/summary.png)
+
+**Translate (`t`)** — English ⇄ Spanish, code and identifiers untouched:
+
+![A translation card](docs/translate.png)
 
 ## 🚀 Install
 
