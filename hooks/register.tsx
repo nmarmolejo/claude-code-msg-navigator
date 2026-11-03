@@ -2,6 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, RenderSurface } from 'claude-code'
 
 import type { Card, CardKind } from '../types'
+import { markdownBlocks, stripEchoedTags } from './blocks'
 import { exchangeAt, formatExchange, typedPrompts } from './exchange'
 import type { Exchange } from './exchange'
 import {
@@ -47,7 +48,6 @@ const COMMAND = 'jump'
 // must be an action with no engine handler mounted, or the engine takes the
 // chord; bind a key to it in ~/.claude/keybindings.json (see README).
 const SHORTCUT_ACTION = 'app:toggleReplTab'
-const CARD_SCROLL_STEP = 5
 const MAX_DRAWN = 500
 const LABEL_LENGTH = 100
 
@@ -58,9 +58,9 @@ const LABEL_LENGTH = 100
 const drawn = new Map<string, string>()
 // The picker row holding the focus ring, so the action keys act on it.
 let focusedKey: string | undefined
-// The card's first visible line, moved by its scroll buttons, and the band
-// instance it is drawn in.
-let cardTop = 0
+// The card's first visible markdown block, moved by its scroll buttons, and
+// the band instance it is drawn in.
+let cardBlock = 0
 let bandId: string | undefined
 
 // Bump the shape tag when Card changes: it declines older stored values.
@@ -184,7 +184,7 @@ async function copyExchange($: EngineInterface, mode: CopyMode, surface?: Render
 }
 
 async function showCard($: EngineInterface, next: Card) {
-  cardTop = 0
+  cardBlock = 0
   await update($, card, () => next)
 }
 
@@ -217,24 +217,25 @@ async function runCardTask($: EngineInterface, kind: CardKind, surface?: RenderS
     return
   }
 
-  const copied = await $.ui.copy({ text: reply.text, surface })
+  const text = stripEchoedTags(reply.text)
+  const copied = await $.ui.copy({ text, surface })
   if (isCurrent) {
-    await showCard($, { kind, status: 'ready', label, text: reply.text, isCopied: copied.isCopied })
+    await showCard($, { kind, status: 'ready', label, text, isCopied: copied.isCopied })
   }
   $.ui.toast(copied.isCopied ? `${task.title} copied` : `Cannot copy: ${copied.reason}`)
 }
 
-/** Moves the card's window by `delta` lines, as its keyboard buttons ask. */
+/** Moves the card's window by `delta` markdown blocks, as its buttons ask. */
 async function scrollCard($: EngineInterface, delta: number) {
   const shown = await read($, card)
   if (shown === null || shown.status !== 'ready') return
 
-  const lines = shown.text.split('\n').length
-  cardTop = Math.min(Math.max(cardTop + delta, 0), lines - 1)
+  const blocks = markdownBlocks(shown.text).length
+  cardBlock = Math.min(Math.max(cardBlock + delta, 0), blocks - 1)
   const scrolled =
-    cardTop === 0 && bandId !== undefined
+    cardBlock === 0 && bandId !== undefined
       ? await $.ui.scroll({ in: bandId, to: 'start' })
-      : await $.ui.scroll({ to: { key: `line-${cardTop}` }, block: 'start' })
+      : await $.ui.scroll({ to: { key: `block-${cardBlock}` }, block: 'start' })
   if (scrolled.deny) $.ui.log(`msg-navigator: card scroll: ${scrolled.deny}`)
 }
 
@@ -305,7 +306,7 @@ export const register: Register = on => {
     if (shown === null || e.props.hasSurvey) return next(e)
 
     bandId = e.requestId
-    const { Box, Button, Text } = $.ui.resolve(e)
+    const { Box, Button, Markdown, Text } = $.ui.resolve(e)
     const task = CARD_TASKS[shown.kind]
     const status =
       shown.status === 'loading'
@@ -318,29 +319,27 @@ export const register: Register = on => {
 
     return (
       <Box key="summary-card" flexDirection="column" borderStyle="round" paddingX={1}>
-        <Box>
-          <Text bold>{task.title} </Text>
-          <Text dimColor wrap="truncate">
-            · {shown.label} · {status} · focus (⌥i) then j/k scroll, x close · type to close{' '}
+        <Box columnGap={2}>
+          <Text bold wrap="truncate">
+            {task.title} <Text dimColor>· {status}</Text>
           </Text>
-          <Button key="card-up" hotkey="k" label="↑" plain onPress={() => scrollCard($, -CARD_SCROLL_STEP)} />
-          <Text> </Text>
-          <Button key="card-down" hotkey="j" label="↓" plain onPress={() => scrollCard($, CARD_SCROLL_STEP)} />
-          <Text> </Text>
-          <Button
-            key="close-summary"
-            hotkey="x"
-            label="close"
-            plain
-            onPress={() => dismissCard($)}
-          />
+          <Box flexGrow={1} />
+          <Button key="card-up" hotkey="k" label="↑" plain onPress={() => scrollCard($, -1)} />
+          <Button key="card-down" hotkey="j" label="↓" plain onPress={() => scrollCard($, 1)} />
+          <Button key="close-summary" hotkey="x" label="close" plain onPress={() => dismissCard($)} />
         </Box>
+        <Text dimColor wrap="truncate">
+          {shown.label}
+        </Text>
+        <Text dimColor wrap="truncate">
+          opt+i or ctrl+x tab to focus · j/k scroll · x or typing closes
+        </Text>
         {shown.status === 'loading' && <Text dimColor>Waiting for the model…</Text>}
         {shown.status === 'error' && <Text color="error">Failed: {shown.reason}</Text>}
         {shown.status === 'ready' &&
-          shown.text.split('\n').map((line, index) => (
-            <Box key={`line-${index}`}>
-              <Text>{line.length > 0 ? line : ' '}</Text>
+          markdownBlocks(shown.text).map((block, index) => (
+            <Box key={`block-${index}`} marginTop={1}>
+              <Markdown text={block} />
             </Box>
           ))}
       </Box>
@@ -372,8 +371,8 @@ export const register: Register = on => {
             onPress={() => jumpTo($, entry)}
           />
         ))}
-        <Box marginTop={1}>
-          <Text dimColor>enter: jump · </Text>
+        <Box marginTop={1} flexWrap="wrap" columnGap={2}>
+          <Text dimColor>enter: jump</Text>
           <Button
             key="copy-response"
             hotkey="c"
@@ -381,7 +380,6 @@ export const register: Register = on => {
             plain
             onPress={press => copyExchange($, 'response', press.surface)}
           />
-          <Text dimColor> · </Text>
           <Button
             key="copy-all"
             hotkey="a"
@@ -389,7 +387,6 @@ export const register: Register = on => {
             plain
             onPress={press => copyExchange($, 'all', press.surface)}
           />
-          <Text dimColor> · </Text>
           <Button
             key="summarize"
             hotkey="r"
@@ -397,7 +394,6 @@ export const register: Register = on => {
             plain
             onPress={press => runCardTask($, 'summary', press.surface)}
           />
-          <Text dimColor> · </Text>
           <Button
             key="translate"
             hotkey="t"
@@ -405,7 +401,7 @@ export const register: Register = on => {
             plain
             onPress={press => runCardTask($, 'translation', press.surface)}
           />
-          <Text dimColor> · esc: close</Text>
+          <Text dimColor>esc: close</Text>
         </Box>
       </Box>
     )

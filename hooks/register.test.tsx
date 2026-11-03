@@ -181,12 +181,12 @@ test('r summarizes the focused response, copies it and shows the card', async ($
     surface: 'terminal',
     props: { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: 80, scroll: { offset: 0, bodyRows: 19 } },
   } as never)
-  expect(await band.find({ type: 'Text', text: /the plan, summarized/ })).toBeDefined()
+  expect(await band.find({ type: 'Markdown', text: /the plan, summarized/ })).toBeDefined()
   expect(await band.find({ type: 'Text', text: /copied to clipboard/ })).toBeDefined()
   expect((await band.find({ key: 'card-down' }))?.text).toBe('↓')
   expect((await band.find({ key: 'card-up' }))?.text).toBe('↑')
   await band.press({ key: 'close-summary' })
-  expect(await band.find({ type: 'Text', text: /the plan, summarized/ })).toBeUndefined()
+  expect(await band.find({ type: 'Markdown', text: /the plan, summarized/ })).toBeUndefined()
   await band.unmount()
 })
 
@@ -228,6 +228,6 @@ test('t translates the focused response and shows it in the card', async ($, on)
     props: { hasSurvey: false, isWorking: false, maxRows: 20, bodyColumns: 80, scroll: { offset: 0, bodyRows: 19 } },
   } as never)
   expect(await band.find({ type: 'Text', text: /^Translation/ })).toBeDefined()
-  expect(await band.find({ type: 'Text', text: /Hi, how can I help\?/ })).toBeDefined()
+  expect(await band.find({ type: 'Markdown', text: /Hi, how can I help\?/ })).toBeDefined()
   await band.unmount()
 })
