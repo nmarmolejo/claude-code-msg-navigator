@@ -1,0 +1,14 @@
+{
+  "name": "claude-code-msg-navigator",
+  "description": "msg-navigator: jump to, copy, summarize or translate any of your previous prompts in Claude Code",
+  "owner": {
+    "name": "Nilson Marmolejo",
+    "url": "https://github.com/nmarmolejo"
+  },
+  "plugins": [
+    {
+      "name": "msg-navigator",
+      "source": "./"
+    }
+  ]
+}
