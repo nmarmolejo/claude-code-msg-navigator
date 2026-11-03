@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](https://code.claude.com)
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.1.1-blue)
 
 </div>
 
@@ -26,7 +26,7 @@ Long Claude Code sessions turn into a wall of text. Finding *that* answer from t
    ```
    /plugin install msg-navigator --marketplace nmarmolejo/claude-code-msg-navigator
    ```
-2. **Open the picker** — type `/jump` (or bind **Option+U**, see [Keyboard shortcuts](#️-keyboard-shortcuts-recommended)).
+2. **Open the picker** — type `/jump` (or bind **Alt+U** / **Option+U**, see [Keyboard shortcuts](#️-keyboard-shortcuts-recommended)).
 3. **Pick a prompt** with ↑ / ↓ and press **Enter** to jump, or **`c` `a` `r` `t`** to copy, copy all, summarize or translate.
 
 ## ✨ Features
@@ -41,7 +41,7 @@ Long Claude Code sessions turn into a wall of text. Finding *that* answer from t
 | **Esc** | Close the picker |
 
 - 🗂️ **Every prompt, always** — the list comes from the conversation itself, so it survives plugin reloads and resumed sessions.
-- ⌨️ **Keyboard first** — open it with your own shortcut (Option+U below) or `/jump`; the newest prompt is preselected.
+- ⌨️ **Keyboard first** — open it with your own shortcut (Alt+U / Option+U below) or `/jump`; the newest prompt is preselected.
 - 🧼 **Out of your way** — a single `⇅` glyph in the footer, no extra rows.
 - 🧠 **Uses your session** — summaries and translations run through your own Claude Code credentials, no API key to set up.
 
@@ -103,16 +103,22 @@ Plugins cannot register keys directly, so map two of Claude Code's own actions i
 
 | Shortcut | Action |
 | --- | --- |
-| **Option+U** | Open the picker (presses the `⇅` button in the footer) |
-| **Option+I** | Focus the summary / translation card, then `j` / `k` to scroll and `x` to close |
+| **Alt+U** (macOS: Option+U) | Open the picker (presses the `⇅` button in the footer) |
+| **Alt+I** (macOS: Option+I) | Focus the summary / translation card, then `j` / `k` to scroll and `x` to close |
 
-> **macOS:** your terminal must send Option as Meta (Ghostty: `macos-option-as-alt = true`; iTerm2: *Profiles → Keys → Left Option key: Esc+*). Inside tmux, make sure `M-u` and `M-i` are not bound.
+`meta` in `keybindings.json` is the **Alt** key on Linux and Windows, and **Option** on macOS.
+
+> **Linux / Windows:** works out of the box in most terminals (GNOME Terminal, Konsole, kitty, Alacritty, WezTerm, Windows Terminal), which send Alt as Meta by default. If Alt+U or Alt+I opens a terminal menu or a window-manager action instead, rebind it there or pick other keys.
+>
+> **macOS:** your terminal must send Option as Meta (Ghostty: `macos-option-as-alt = true`; iTerm2: *Profiles → Keys → Left Option key: Esc+*).
+>
+> **tmux:** make sure `M-u` and `M-i` are not bound.
 
 No shortcuts? `/jump` always opens the picker, `ctrl+x tab` focuses the card, and the mouse wheel scrolls it.
 
 ## 📖 Usage
 
-1. Press **Option+U** (or type `/jump`).
+1. Press **Alt+U** / **Option+U** (or type `/jump`).
 2. Move with **↑ / ↓** — the newest prompt is selected.
 3. Press **Enter** to jump, or **`c` / `a` / `r` / `t`** to copy, copy all, summarize or translate.
 
@@ -126,7 +132,7 @@ Summaries and translations use **Sonnet** for fidelity on long technical answers
 | --- | --- |
 | `SUMMARY_MODEL` | `hooks/summary.ts` |
 | `TRANSLATION_MODEL` | `hooks/translation.ts` |
-| `SHORTCUT_ACTION` (the action Option+U presses) | `hooks/register.tsx` |
+| `SHORTCUT_ACTION` (the action Alt/Option+U presses) | `hooks/register.tsx` |
 
 ## 🔍 How it works
 
